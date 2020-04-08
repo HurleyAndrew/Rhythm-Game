@@ -36,7 +36,7 @@ let song2_highscore = 0;
 let song3_highscore = 0;
 
 let rubik;
-let noiseImg;
+let noiseImg, instructionImg;
 
 // JSON
 let song1_JSON, song2_JSON, song3_JSON;
@@ -44,27 +44,28 @@ let song1_JSON, song2_JSON, song3_JSON;
 let song1_audio, song2_audio, song3_audio;
 
 function preload() {
-  song1_JSON = loadJSON("friends.json");
-  song2_JSON = loadJSON("harryNotes.json");
-  song3_JSON = loadJSON("happytogether.json");
+  song1_JSON = loadJSON("/data/friends.json");
+  song2_JSON = loadJSON("/data/harryNotes.json");
+  song3_JSON = loadJSON("/data/happytogether.json");
 
   // musicFile = loadSound("dasher.mp3");
-  song1_audio = loadSound("friends.mp3");
-  song2_audio = loadSound("harry.mp3");
-  song3_audio = loadSound("happytogether.mp3");
+  song1_audio = loadSound("/audio/friends.mp3");
+  song2_audio = loadSound("/audio/harry.mp3");
+  song3_audio = loadSound("/audio/happytogether.mp3");
 
-  upArrowImg = loadImage("upArrow.png");
-  downArrowImg = loadImage("downArrow.png");
-  leftArrowImg = loadImage("leftArrow.png");
-  rightArrowImg = loadImage("rightArrow.png");
-  controlArrowImg = loadImage("controlArrow.png");
+  upArrowImg = loadImage("/graphics/upArrow.png");
+  downArrowImg = loadImage("/graphics/downArrow.png");
+  leftArrowImg = loadImage("/graphics/leftArrow.png");
+  rightArrowImg = loadImage("/graphics/rightArrow.png");
+  controlArrowImg = loadImage("/graphics/controlArrow.png");
 
-  upControl = loadImage("upControl.png");
-  downControl = loadImage("downControl.png");
-  leftControl = loadImage("leftControl.png");
-  rightControl = loadImage("rightControl.png");
+  upControl = loadImage("/graphics/upControl.png");
+  downControl = loadImage("/graphics/downControl.png");
+  leftControl = loadImage("/graphics/leftControl.png");
+  rightControl = loadImage("/graphics/rightControl.png");
 
-  noiseImg = loadImage("noise.png");
+  noiseImg = loadImage("/graphics/noise.png");
+  instructionImg = loadImage("/graphics/instructions.png");
 
   rubik = loadFont("rubik.ttf");
 }
@@ -193,10 +194,11 @@ function draw() {
     textSize(50);
     textAlign(CENTER);
     textFont(rubik);
-    text("Space BeeBop", width / 2, 110);
+    text("Space BeeBop", width / 2, height / 3 - 150);
     textSize(24);
     noStroke();
-    text("Choose a Song", width / 2, 170);
+    text("Choose a Song", width / 2, height / 3 - 100);
+    image(instructionImg, width / 3 - 250, height / 2 - 100, 182, 147.68);
     pop();
     for (let i = 0; i < songOptionsArr.length; i++) {
       songOptionsArr[i].display();
@@ -237,6 +239,7 @@ function draw() {
           ) {
             // added check for distance on first go around maybe instead check for something else because if the user hits the first target before it gets to its mark it will not start the music
             score = 0;
+            console.log("hit section");
             playOnFirstTime();
           }
         }
@@ -246,7 +249,7 @@ function draw() {
     beatGenerator();
     time += 1;
 
-    console.log(songTime);
+    // console.log(songTime);
     displayScore(score);
   }
 
@@ -280,13 +283,21 @@ function displayScore() {
 
 function keyPressed() {
   if (keyCode === 81) {
-    songFinished();
+    onFinish();
+    selectedSong.stop();
+    songTime = 0;
+    isSongStarted = false;
+    firstTimeAround = true;
   }
   if (
     keyCode === RIGHT_ARROW ||
     keyCode === UP_ARROW ||
     keyCode === LEFT_ARROW ||
-    keyCode === DOWN_ARROW
+    keyCode === DOWN_ARROW ||
+    keyCode === 68 ||
+    keyCode === 87 ||
+    keyCode === 65 ||
+    keyCode === 83
   ) {
     for (let i = 0; i < tapperButtonArr.length; i++) {
       for (let j = 0; j < tapTargetArr.length; j++) {
@@ -296,28 +307,40 @@ function keyPressed() {
             tapTargetArr[j].yPos
           )
         ) {
-          if (keyCode === RIGHT_ARROW && tapTargetArr[j].targetRail == 0) {
+          if (
+            (keyCode === RIGHT_ARROW || keyCode === 68) &&
+            tapTargetArr[j].targetRail == 0
+          ) {
             if (tapperButtonArr[i].isTapped()) {
               score += tapperButtonArr[i].getScore();
             }
             tapTargetArr.splice(j, 1);
           }
 
-          if (keyCode === UP_ARROW && tapTargetArr[j].targetRail == 1) {
+          if (
+            (keyCode === UP_ARROW || keyCode === 87) &&
+            tapTargetArr[j].targetRail == 1
+          ) {
             if (tapperButtonArr[i].isTapped()) {
               score += tapperButtonArr[i].getScore();
             }
             tapTargetArr.splice(j, 1);
           }
 
-          if (keyCode === LEFT_ARROW && tapTargetArr[j].targetRail == 2) {
+          if (
+            (keyCode === LEFT_ARROW || keyCode === 65) &&
+            tapTargetArr[j].targetRail == 2
+          ) {
             if (tapperButtonArr[i].isTapped()) {
               score += tapperButtonArr[i].getScore();
             }
             tapTargetArr.splice(j, 1);
           }
 
-          if (keyCode === DOWN_ARROW && tapTargetArr[j].targetRail == 3) {
+          if (
+            (keyCode === DOWN_ARROW || keyCode === 83) &&
+            tapTargetArr[j].targetRail == 3
+          ) {
             if (tapperButtonArr[i].isTapped()) {
               score += tapperButtonArr[i].getScore();
             }
@@ -378,9 +401,10 @@ function playOnFirstTime() {
 function songFinished() {
   // console.log("song finihsed selected song: " + selectedSong);
   if (selectedSong.isPlaying()) {
+    selectedSong.stop();
   }
   isSongStarted = false;
-  selectedSong.stop();
+
   menuIsOpen = true;
   saveScores();
   time = 0;
@@ -390,7 +414,7 @@ function songFinished() {
 }
 
 function onFinish() {
-  console.log("SongTime: " + songTime);
+  // console.log("SongTime: " + songTime);
   isSongStarted = false;
   menuIsOpen = true;
   saveScores();
