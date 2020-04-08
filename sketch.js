@@ -44,28 +44,28 @@ let song1_JSON, song2_JSON, song3_JSON;
 let song1_audio, song2_audio, song3_audio;
 
 function preload() {
-  song1_JSON = loadJSON("/data/friends.json");
-  song2_JSON = loadJSON("/data/harryNotes.json");
-  song3_JSON = loadJSON("/data/happytogether.json");
+  song1_JSON = loadJSON("./data/friends.json");
+  song2_JSON = loadJSON("./data/harryNotes.json");
+  song3_JSON = loadJSON("./data/happytogether.json");
 
   // musicFile = loadSound("dasher.mp3");
-  song1_audio = loadSound("/audio/friends.mp3");
-  song2_audio = loadSound("/audio/harry.mp3");
-  song3_audio = loadSound("/audio/happytogether.mp3");
+  song1_audio = loadSound("./audio/friends.mp3");
+  song2_audio = loadSound("./audio/harry.mp3");
+  song3_audio = loadSound("./audio/happytogether.mp3");
 
-  upArrowImg = loadImage("/graphics/upArrow.png");
-  downArrowImg = loadImage("/graphics/downArrow.png");
-  leftArrowImg = loadImage("/graphics/leftArrow.png");
-  rightArrowImg = loadImage("/graphics/rightArrow.png");
-  controlArrowImg = loadImage("/graphics/controlArrow.png");
+  upArrowImg = loadImage("./graphics/upArrow.png");
+  downArrowImg = loadImage("./graphics/downArrow.png");
+  leftArrowImg = loadImage("./graphics/leftArrow.png");
+  rightArrowImg = loadImage("./graphics/rightArrow.png");
+  controlArrowImg = loadImage("./graphics/controlArrow.png");
 
-  upControl = loadImage("/graphics/upControl.png");
-  downControl = loadImage("/graphics/downControl.png");
-  leftControl = loadImage("/graphics/leftControl.png");
-  rightControl = loadImage("/graphics/rightControl.png");
+  upControl = loadImage("./graphics/upControl.png");
+  downControl = loadImage("./graphics/downControl.png");
+  leftControl = loadImage("./graphics/leftControl.png");
+  rightControl = loadImage("./graphics/rightControl.png");
 
-  noiseImg = loadImage("/graphics/noise.png");
-  instructionImg = loadImage("/graphics/instructions.png");
+  noiseImg = loadImage("./graphics/noise.png");
+  instructionImg = loadImage("./graphics/instructions.png");
 
   rubik = loadFont("rubik.ttf");
 }
@@ -235,11 +235,21 @@ function draw() {
               tapTargetArr[j].yPos
             ) &&
               tapperButtonArr[i].getDistance() <= 5) ||
-            (tapperButtonArr[i].getDistance() <= 100 && keyPressed)
+            (tapperButtonArr[i].getDistance() <= 100 &&
+              keyPressed &&
+              tapperButtonArr[i].isOverlapping(
+                tapTargetArr[j].xPos,
+                tapTargetArr[j].yPos
+              ))
           ) {
             // added check for distance on first go around maybe instead check for something else because if the user hits the first target before it gets to its mark it will not start the music
             score = 0;
-            console.log("hit section");
+            console.log(
+              tapperButtonArr[i].isOverlapping(
+                tapTargetArr[j].xPos,
+                tapTargetArr[j].yPos
+              )
+            );
             playOnFirstTime();
           }
         }
@@ -415,6 +425,7 @@ function songFinished() {
 
 function onFinish() {
   // console.log("SongTime: " + songTime);
+  tapTargetArr = [];
   isSongStarted = false;
   menuIsOpen = true;
   saveScores();
